@@ -1,0 +1,119 @@
+<div class="row mt-5">
+  <div class="col-md-6 m-auto">
+    <div class="card card-body">
+      <a href="/usuarios/logout" style="width: 5rem" class="btn btn-secondary">Logout</a>
+      <h1 class="text-center mb-3">
+        <h1 class="mt-4">Lista de tarefas de <%- user.nome %></h1>
+      </h1>
+      <%- include('./partials/messages') %>
+      <form action="/usuarios/todos" method="POST">
+        <div class="form-group">
+          <label for="descricao">Inserir tarefa</label>
+          <input type="hidden" name="email" value="<%- user.email %>">
+          <input type="descricao" id="descricao" name="descricao" class="form-control"
+            value="<%= typeof descricao != 'undefined' ? descricao : '' %>" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          Inserir
+        </button>
+      </form>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(Array.isArray(tarefas)) { %>
+          <% tarefas.forEach(tarefa => { %>
+          <tr>
+            <td>
+              <div class="d-flex" id="<%= tarefa._id %>">
+                <%= tarefa.descricao %>
+              </div>
+            </td>
+            <td style="justify-content: flex-end;" class="d-flex">
+              <a onclick="edit('<%= tarefa._id %>')" style="cursor: pointer; margin-right: 10px; color: grey;"
+                class="edit" title="Editar"><i class="fa fa-pen" aria-hidden="true"></i></a>
+              <a href="/usuarios/todos/delete/<%= tarefa._id %>" class="delete" title="Deletar"><i class="fa fa-trash"
+                  aria-hidden="true"></i></a>
+            </td>
+          </tr>
+          <% });%>
+          <% } else{ %>
+          <tr>
+            <td><%- tarefas %></td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  let editing = false;
+
+  function edit(id) {
+
+    if (!editing) {      
+      //Desativar novas chamadas de editar
+        editing = true;
+
+        let valorAnterior = document.getElementById(id).innerHTML;
+        document.getElementById(id).innerHTML = "" 
+    
+        let editForm = document.createElement("form")
+        editForm.className = "form-inline"
+        editForm.id = "editForm"
+        editForm.action = "/usuarios/todos/edit"
+        editForm.method = "POST"
+    
+        let novaDescricao = document.createElement("input")
+        novaDescricao.name = "novaDescricao"
+        novaDescricao.className = "form-control mr-2"
+        novaDescricao.placeholder = valorAnterior
+    
+        let tarefaId = document.createElement("input")
+        tarefaId.type = "hidden"
+        tarefaId.name = "tarefaId"
+        tarefaId.value = id;
+    
+        let buttonOk = document.createElement("button")
+        buttonOk.className = "btn btn-success btn-sm mr-2"
+        buttonOk.innerHTML = "Confirmar"
+        buttonOk.type = "submit"
+    
+        let buttonCancel = document.createElement("button")
+        buttonCancel.className = "btn btn-secondary btn-sm"
+        buttonCancel.innerHTML = "Cancelar"
+        arg1 = id;
+        arg2 = valorAnterior;
+        buttonCancel.type = "button"
+        buttonCancel.onclick = invoke
+    
+        document.getElementById(id).appendChild(editForm)
+        document.getElementById("editForm").appendChild(novaDescricao)
+        document.getElementById("editForm").appendChild(tarefaId)
+        document.getElementById("editForm").appendChild(buttonOk)
+        document.getElementById("editForm").appendChild(buttonCancel)
+        
+      }
+
+
+    }
+
+    function revert(id, valorAnterior) {
+      console.log("chamou revert")
+      console.log(id)
+      console.log(valorAnterior)
+      document.getElementById(id).innerHTML = "";
+      document.getElementById(id).innerHTML = valorAnterior;
+    }
+
+    invoke = () => {
+      window.location.reload()
+    }
+
+</script>
